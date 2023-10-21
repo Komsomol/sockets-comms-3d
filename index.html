@@ -1,0 +1,22 @@
+<button onmousedown="startRotation('left')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Left</button>
+<button onmousedown="startRotation('right')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Right</button>
+
+<script>
+  const ws = new WebSocket('ws://localhost:3001');
+  let rotationInterval;
+
+  ws.onopen = () => {
+    console.log('Connected to WebSocket server on port 3001. ');
+  };
+
+  function startRotation(direction) {
+    stopRotation(); // Clear any existing intervals
+    rotationInterval = setInterval(() => {
+      ws.send(`rotate-${direction}`);
+    }, 50); // Adjust interval duration for smoother/faster rotations if needed
+  }
+
+  function stopRotation() {
+    clearInterval(rotationInterval);
+  }
+</script>
