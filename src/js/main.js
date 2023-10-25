@@ -31,27 +31,6 @@ window.camera = camera;
 
 // orbit controls
 const orbitControls = new OrbitControls( camera, renderer.domElement );
-
-// gltf
-const loader = new GLTFLoader();
-let model;
-let loaded = false;
-loader.load( './model/london_eye_london_uk.glb', function ( gltf ) {
-	loaded = true;
-	// scene.add( gltf.scene );
-	model = gltf.scene;
-	modelloaded();
-}, undefined, function ( error ) {
-	console.error( error );
-} );
-
-function modelloaded() {
-	if (loaded) {
-		scene.add( model );
-	}
-}
-
-
 // light
 const ambilight = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( ambilight );
@@ -68,27 +47,48 @@ scene.add( gridHelper );
 const axesHelper = new THREE.AxesHelper( 5 );
 scene.add( axesHelper );
 
-// animate
+// GLTF
+const loader = new GLTFLoader();
+let model;
+let loaded = false;
+
+// Load the GLB model and show progress
+loader.load(
+    './model/london_eye_london_uk.glb',
+    (gltf) => {
+        model = gltf.scene;
+        scene.add(model);
+        loaded = true;
+        animate();
+    },
+    (xhr) => {
+        console.log(`Model ${Math.round((xhr.loaded / xhr.total) * 100)}% loaded`); // Progress callback
+    },
+    (error) => {
+        console.error(error);
+    }
+);
+
+// WebSocket Handling
+ws.onmessage = (event) => {
+    const command = event.data;
+    if (!loaded) return; // Don't process commands if the model isn't loaded
+
+    switch (command) {
+        case "rotate-left":
+            model.rotation.y -= 0.1;
+            break;
+        case "rotate-right":
+            model.rotation.y += 0.1;
+            break;
+    }
+    renderer.render(scene, camera); // Render the scene after rotating the model
+};
+
+// Animate
 function animate() {
-	requestAnimationFrame(animate);
+    if (!loaded) return; // Don't animate if the model isn't loaded
 
-	ws.onmessage = (event) => {
-		const command = event.data;
-		switch (command) {
-			case "rotate-left":
-				if(loaded){
-					model.rotation.y -= 0.1;
-				}
-
-				break;
-			case "rotate-right":
-				if(loaded){
-					model.rotation.y += 0.1;
-				}
-				break;
-		} // Render the scene after rotating the cube
-	};
-
-	renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
 }
-animate();
