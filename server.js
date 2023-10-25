@@ -1,10 +1,12 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('ws');
+import express from 'express';
+import http from 'http';
 
+import { WebSocketServer } from "ws";
 const app = express();
 const server = http.createServer(app);
-const wss = new Server({ server });
+
+const wss = new WebSocketServer({ server });
+// const wss = new WebSocket.Server({ server });  // Adjusted this line
 
 wss.on('connection', (ws) => {
     ws.on('message', (message) => {
@@ -13,7 +15,7 @@ wss.on('connection', (ws) => {
 
         // Broadcast the message to all connected clients
         wss.clients.forEach((client) => {
-            if (client !== ws && client.readyState === ws.OPEN) {  // Change this line
+            if (client !== ws && client.readyState === ws.OPEN) {
                 client.send(receivedMessage);
             }
         });

@@ -1,22 +1,28 @@
-<button onmousedown="startRotation('left')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Left</button>
-<button onmousedown="startRotation('right')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Right</button>
+<!-- Description: The main page of the application. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" href="src/css/style.css">
+    <title>Three.js Scene</title>
+</head>
+<body>
+<div id="app">
+  <div class="container">
+    
+    <div class="title">
+      <h2>Controller</h2>
+    </div>
 
-<script>
-  const ws = new WebSocket('ws://localhost:3001');
-  let rotationInterval;
+    <div class="controls">
+      <button onmousedown="startRotation('left')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Left</button>
+      <button onmousedown="startRotation('right')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Right</button>
+    </div>
 
-  ws.onopen = () => {
-    console.log('Connected to WebSocket server on port 3001. ');
-  };
-
-  function startRotation(direction) {
-    stopRotation(); // Clear any existing intervals
-    rotationInterval = setInterval(() => {
-      ws.send(`rotate-${direction}`);
-    }, 50); // Adjust interval duration for smoother/faster rotations if needed
-  }
-
-  function stopRotation() {
-    clearInterval(rotationInterval);
-  }
-</script>
+  </div>
+</div>
+  <script type="module" src="src/js/server.js"></script>
+</body>
+</html>
