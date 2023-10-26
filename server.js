@@ -6,7 +6,6 @@ const app = express();
 const server = http.createServer(app);
 
 const wss = new WebSocketServer({ server });
-// const wss = new WebSocket.Server({ server });  // Adjusted this line
 
 wss.on('connection', (ws) => {
     ws.on('message', (message) => {
