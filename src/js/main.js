@@ -17,6 +17,12 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Special options for the renderer
+THREE.ColorManagement.enabled = true;
+renderer.gammaOutput = true;
+renderer.gammaFactor = 2.2;
+renderer.toneMapping = THREE.NoToneMapping;
+
 // sockets
 const ws = new WebSocket("ws://localhost:3001");
 ws.onopen = () => {
@@ -24,9 +30,9 @@ ws.onopen = () => {
 };
 
 // camera
-camera.position.x = -6;
-camera.position.y = 6;
-camera.position.z = 6;
+camera.position.x = -20;
+camera.position.y = 10;
+camera.position.z = 20;
 
 // Attach camera to the window object
 window.camera = camera;
@@ -38,38 +44,38 @@ const ambilight = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( ambilight );
 const hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
 scene.add( hemilight );
-const hemihelper = new THREE.HemisphereLightHelper( hemilight, 5 );
-scene.add( hemihelper );
+
+// White directional light at half intensity shining from the top.
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+scene.add( directionalLight );
 
 // helpers
-
-const size = 10;
-const divisions = 10;
-const gridHelper = new THREE.GridHelper( size, divisions );
-// scene.add( gridHelper );
+const gridHelper = new THREE.GridHelper( 100, 100 );
 const axesHelper = new THREE.AxesHelper( 5 );
-
+const dirlighthelper = new THREE.DirectionalLightHelper( directionalLight, 5 );
 
 // GUI
 let controls = {
     axes: false,
     grid: false,
+    dirlighthelper: false
 }
 
-
 const gui = new GUI();
+
 const cameraFolder = gui.addFolder('Camera');
-cameraFolder.add(camera.position, 'x', -10, 10);
-cameraFolder.add(camera.position, 'y', -10, 10);
-cameraFolder.add(camera.position, 'z', -10, 10);
+cameraFolder.add(camera.position, 'x', -20, 20);
+cameraFolder.add(camera.position, 'y', -20, 20);
+cameraFolder.add(camera.position, 'z', -20, 20);
 cameraFolder.open();
 
 const lightFolder = gui.addFolder('Light');
-lightFolder.add(hemilight.position, 'x', -10, 10);
-lightFolder.add(hemilight.position, 'y', -10, 10);
-lightFolder.add(hemilight.position, 'z', -10, 10);
+lightFolder.add(directionalLight.position, 'x', -20, 20);
+lightFolder.add(directionalLight.position, 'y', -20, 20);
+lightFolder.add(directionalLight.position, 'z', -20, 20);
 lightFolder.open();
 
+// Add axes helper
 gui.add(controls, 'axes').name('Show Axes').onChange((value) => {
     if (value) {
         scene.add(axesHelper);
@@ -78,6 +84,16 @@ gui.add(controls, 'axes').name('Show Axes').onChange((value) => {
     }
 });
 
+gui.add(controls, 'dirlighthelper').name('Show Light Helper').onChange((value) => {
+    if (value) {
+        scene.add(gridHelper);
+    } else {
+        scene.remove(gridHelper);
+    }
+});
+
+
+// Add grid helper
 gui.add(controls, 'grid').name('Show Grid').onChange((value) => {
     if (value) {
         scene.add(gridHelper);
@@ -85,6 +101,7 @@ gui.add(controls, 'grid').name('Show Grid').onChange((value) => {
         scene.remove(gridHelper);
     }
 });
+
 
 
 
