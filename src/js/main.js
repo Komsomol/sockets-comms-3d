@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GUI } from 'dat.gui';
 
+
 // scene
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -103,8 +104,6 @@ gui.add(controls, 'grid').name('Show Grid').onChange((value) => {
 });
 
 
-
-
 // resize
 window.addEventListener( 'resize', onWindowResize, false );
 
@@ -120,9 +119,16 @@ const loader = new GLTFLoader();
 let model;
 let loaded = false;
 
+
+// 80_american_sedan.glb
+// london_eye_london_uk.glb
+// london_financial_district.glb
+// oldest_tree_in_city_of_london.glb
+// piccadilly_circus_london_uk.glb
+
 // Load the GLB model and show progress
 loader.load(
-    './model/london_financial_district8k.glb',
+    './model/london_eye_london_uk.glb',
     (gltf) => {
         model = gltf.scene;
         scene.add(model);
@@ -156,6 +162,8 @@ ws.onmessage = (event) => {
 // Animate
 function animate() {
     if (!loaded) return; // Don't animate if the model isn't loaded
+
+	model.rotation.y += 0.001;
 
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
