@@ -1,10 +1,12 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { GUI } from 'dat.gui';
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { GUI } from "dat.gui";
 
+const debug = true;
+const PATH = "ws://localhost:3001";
 
-// scene
+// Scene setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
 	75,
@@ -12,161 +14,181 @@ const camera = new THREE.PerspectiveCamera(
 	0.1,
 	1000
 );
-
-// renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+// Renderer settings for improved visuals
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.gammaInput = true;
+renderer.gammaOutput = true;
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = Math.pow(0.9, 5.0); // Adjust to your needs
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Default is PCFShadowMap
+
+
+
+
+// Add renderer to DOM
 document.body.appendChild(renderer.domElement);
 
-// Special options for the renderer
-THREE.ColorManagement.enabled = true;
-renderer.gammaOutput = true;
-renderer.gammaFactor = 2.2;
-renderer.toneMapping = THREE.NoToneMapping;
+// WebSocket setup
+const ws = new WebSocket(PATH);
+ws.onopen = () => console.log("Connected to WebSocket server at " + PATH);
 
-// sockets
-const ws = new WebSocket("ws://localhost:3001");
-ws.onopen = () => {
-	console.log("Connected to WebSocket server.");
-};
-
-// camera
-camera.position.x = -20;
-camera.position.y = 10;
-camera.position.z = 20;
-
-// Attach camera to the window object
+// Camera setup
 window.camera = camera;
 
-// orbit controls
-const orbitControls = new OrbitControls( camera, renderer.domElement );
-// light
-const ambilight = new THREE.AmbientLight( 0x404040 ); // soft white light
-scene.add( ambilight );
-const hemilight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
-scene.add( hemilight );
-
-// White directional light at half intensity shining from the top.
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-scene.add( directionalLight );
-
-// helpers
-const gridHelper = new THREE.GridHelper( 100, 100 );
-const axesHelper = new THREE.AxesHelper( 5 );
-const dirlighthelper = new THREE.DirectionalLightHelper( directionalLight, 5 );
-
-// GUI
-let controls = {
-    axes: false,
-    grid: false,
-    dirlighthelper: false
-}
-
-const gui = new GUI();
-
-const cameraFolder = gui.addFolder('Camera');
-cameraFolder.add(camera.position, 'x', -20, 20);
-cameraFolder.add(camera.position, 'y', -20, 20);
-cameraFolder.add(camera.position, 'z', -20, 20);
-cameraFolder.open();
-
-const lightFolder = gui.addFolder('Light');
-lightFolder.add(directionalLight.position, 'x', -20, 20);
-lightFolder.add(directionalLight.position, 'y', -20, 20);
-lightFolder.add(directionalLight.position, 'z', -20, 20);
-lightFolder.open();
-
-// Add axes helper
-gui.add(controls, 'axes').name('Show Axes').onChange((value) => {
-    if (value) {
-        scene.add(axesHelper);
-    } else {
-        scene.remove(axesHelper);
-    }
-});
-
-gui.add(controls, 'dirlighthelper').name('Show Light Helper').onChange((value) => {
-    if (value) {
-        scene.add(gridHelper);
-    } else {
-        scene.remove(gridHelper);
-    }
-});
-
-
-// Add grid helper
-gui.add(controls, 'grid').name('Show Grid').onChange((value) => {
-    if (value) {
-        scene.add(gridHelper);
-    } else {
-        scene.remove(gridHelper);
-    }
-});
-
-
-// resize
-window.addEventListener( 'resize', onWindowResize, false );
-
-function onWindowResize(){
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-}
-
-
-// GLTF
+// Model setup
 const loader = new GLTFLoader();
 let model;
 let loaded = false;
 
+const models = {
+	"Burdett Coutts": {
+		path: "./models/burdett-coutts_fountain.glb",
+		cameraPosition: new THREE.Vector3(0, 76, 190),
+	},
+	"London Financial District": {
+		path: "./models/london_financial_district.glb",
+		cameraPosition: new THREE.Vector3(0.5, 24, 33),
+	},
+	"Mini London": {
+		path: "./models/mini_london.glb",
+		cameraPosition: new THREE.Vector3(3, 1.5, 1.5),
+	},
+	"O2 Arena": {
+		path: "./models/o2_arenalondon.glb",
+		cameraPosition: new THREE.Vector3(20, 60, 98),
+	},
+	"Old London Bridge": {
+		path: "./models/old_london_bridge_tablet.glb",
+		cameraPosition: new THREE.Vector3(0, 11, 29),
+	},
+};
 
-// 80_american_sedan.glb
-// london_eye_london_uk.glb
-// london_financial_district.glb
-// oldest_tree_in_city_of_london.glb
-// piccadilly_circus_london_uk.glb
+let controls = {
+	axes: false,
+	grid: false,
+	dirLightHelper: false,
+    switchModel: debug ? 'Mini London' : 'London Financial District'
+};
 
-// Load the GLB model and show progress
-loader.load(
-    './model/london_eye_london_uk.glb',
-    (gltf) => {
-        model = gltf.scene;
-        scene.add(model);
-        loaded = true;
-        animate();
-    },
-    (xhr) => {
-        console.log(`Model ${Math.round((xhr.loaded / xhr.total) * 100)}% loaded`); // Progress callback
-    },
-    (error) => {
-        console.error(error);
-    }
-);
+function loadModel(name) {
+	if (models[name]) {
+		if (model) {
+			scene.remove(model);
+			model = null;
+		}
+		loader.load(
+			models[name].path,
+			(gltf) => {
+				model = gltf.scene;
+				scene.add(model);
+				camera.position.copy(models[name].cameraPosition);
+				camera.lookAt(0, 0, 0);
+
+				console.log("===>", camera.position);
+				loaded = true;
+				animate();
+			},
+			(xhr) =>
+				console.log(
+					`Model ${Math.round(
+						(xhr.loaded / xhr.total) * 100
+					)}% loaded`
+				),
+			(error) => console.error(error)
+		);
+	}
+}
+
+// OrbitControls setup
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+
+// Lighting setup
+scene.add(new THREE.AmbientLight(0x404040));
+scene.add(new THREE.HemisphereLight(0xffffbb, 0x080820, 10));
+const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+// For each light that casts shadow:
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 512;  // Adjust to your needs
+directionalLight.shadow.mapSize.height = 512; // Adjust to your needs
+directionalLight.position.set(0, 20, 0);
+scene.add(directionalLight);
+
+// Helpers
+const gridHelper = new THREE.GridHelper(100, 100);
+const axesHelper = new THREE.AxesHelper(5);
+const dirLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+
+// dat.GUI setup
+if(debug) {
+    const gui = new GUI();
+    
+    const cameraFolder = gui.addFolder("Camera");
+    cameraFolder.add(camera.position, "x", -50, 50);
+    cameraFolder.add(camera.position, "y", -50, 50);
+    cameraFolder.add(camera.position, "z", -50, 50);
+    cameraFolder.open();
+    
+    const lightFolder = gui.addFolder("Light");
+    lightFolder.add(directionalLight.position, "x", -20, 20);
+    lightFolder.add(directionalLight.position, "y", -20, 20);
+    lightFolder.add(directionalLight.position, "z", -20, 20);
+    lightFolder.open();
+    
+    gui.add(controls, "axes")
+        .name("Show Axes")
+        .onChange((value) =>
+            value ? scene.add(axesHelper) : scene.remove(axesHelper)
+        );
+    gui.add(controls, "grid")
+        .name("Show Grid")
+        .onChange((value) =>
+            value ? scene.add(gridHelper) : scene.remove(gridHelper)
+        );
+    gui.add(controls, "dirLightHelper")
+        .name("Show Light Helper")
+        .onChange((value) =>
+            value ? scene.add(dirLightHelper) : scene.remove(dirLightHelper)
+        );
+    
+    gui.add(controls, 'switchModel', Object.keys(models)).name('Choose Model').onChange(loadModel);
+
+
+}
+
+
+// Load default model
+loadModel(controls.switchModel);
 
 // WebSocket Handling
 ws.onmessage = (event) => {
-    const command = event.data;
-    if (!loaded) return; // Don't process commands if the model isn't loaded
-
-    switch (command) {
-        case "rotate-left":
-            model.rotation.y -= 0.1;
-            break;
-        case "rotate-right":
-            model.rotation.y += 0.1;
-            break;
-    }
-    renderer.render(scene, camera); // Render the scene after rotating the model
+	const command = event.data;
+	if (!loaded) return;
+	switch (command) {
+		case "rotate-left":
+			model.rotation.y -= 0.1;
+			break;
+		case "rotate-right":
+			model.rotation.y += 0.1;
+			break;
+	}
 };
 
 // Animate
 function animate() {
-    if (!loaded) return; // Don't animate if the model isn't loaded
-
-	model.rotation.y += 0.001;
-
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+	if (loaded) {
+		model.rotation.y += 0.001;
+		renderer.render(scene, camera);
+		requestAnimationFrame(animate);
+	}
 }
 
-
+// Resize
+window.addEventListener("resize", () => {
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+});
