@@ -26,9 +26,6 @@ renderer.toneMappingExposure = Math.pow(0.9, 5.0); // Adjust to your needs
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Default is PCFShadowMap
 
-
-
-
 // Add renderer to DOM
 document.body.appendChild(renderer.domElement);
 
@@ -138,25 +135,29 @@ if(debug) {
     lightFolder.add(directionalLight.position, "z", -20, 20);
     lightFolder.open();
     
+	// Axes helper
     gui.add(controls, "axes")
         .name("Show Axes")
         .onChange((value) =>
             value ? scene.add(axesHelper) : scene.remove(axesHelper)
         );
+
+	// Grid helper
     gui.add(controls, "grid")
         .name("Show Grid")
         .onChange((value) =>
             value ? scene.add(gridHelper) : scene.remove(gridHelper)
         );
+	
+	// Light helper
     gui.add(controls, "dirLightHelper")
         .name("Show Light Helper")
         .onChange((value) =>
             value ? scene.add(dirLightHelper) : scene.remove(dirLightHelper)
         );
     
+	// swtich model
     gui.add(controls, 'switchModel', Object.keys(models)).name('Choose Model').onChange(loadModel);
-
-
 }
 
 
