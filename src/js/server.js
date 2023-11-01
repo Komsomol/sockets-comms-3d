@@ -5,18 +5,21 @@ let rotationInterval;
 ws.onopen = () => {
   console.log('Connected to WebSocket server on port 3001. ');
   console.log(ws.readyState);
-  if(ws.readyState === 1){
-    ws.send('Connection established!');
-    document.getElementById('connection-status').text = 'Connected';
+  if (ws.readyState === WebSocket.OPEN) {
+      ws.send('Connection established!');
+      // document.getElementById('connected').innerText = '1';  // Indicates connected
+      changeStatusText('Connected');
   }
 };
 
 ws.onerror = (error) => {
   console.log(`WebSocket error: ${error}`);
+  changeStatusText('Error');
 }
 
 ws.onclose = (event) => { 
   console.log('WebSocket connection closed');
+  changeStatusText('Disconnected');
 }
 
 let currentModel = 'London Financial District';
@@ -51,4 +54,8 @@ window.changeModel = (event) => {
 
 window.stopRotation = function() {
   clearInterval(rotationInterval);
+}
+
+window.changeStatusText = (status) => {
+  document.getElementById('connected').innerText = status;
 }
