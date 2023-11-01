@@ -14,9 +14,21 @@ ws.onclose = (event) => {
   console.log('WebSocket connection closed');
 }
 
+let currentModel = 'London Financial District';
 window.sendModelChangeCommand = function(modelname) {
-  console.log(`Changing model to ${modelname}`);
-  ws.send(`${modelname}`);
+
+  // check if new model is same as current model
+  if (currentModel == modelname) {
+    // if same, send message to server to change model
+    console.log(`Model already loaded`)
+  } else {
+    console.log(`Changing model to ${modelname}`);
+    ws.send(`${modelname}`);
+
+    //save name of current model
+    currentModel = modelname;
+  }
+
 }
 
 window.startRotation = function(direction) {
