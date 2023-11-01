@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { GUI } from "dat.gui";
 
-const debug = true;
+const debug = false;
 const PATH = "ws://localhost:3001";
 
 // Scene setup
@@ -168,14 +168,26 @@ loadModel(controls.switchModel);
 ws.onmessage = (event) => {
 	const command = event.data;
 	if (!loaded) return;
-	switch (command) {
-		case "rotate-left":
-			model.rotation.y -= 0.1;
+    switch (command) {
+        case "rotate-left":
+            model.rotation.y -= 0.1;
+            break;
+        case "rotate-right":
+            model.rotation.y += 0.1;
+            break;
+        case "London Financial District":
+            loadModel('London Financial District');
+            break;
+        case "Old London Bridge":
+            loadModel('Old London Bridge');
+            break;
+		case "Mini London":
+			loadModel('Mini London');
 			break;
-		case "rotate-right":
-			model.rotation.y += 0.1;
-			break;
-	}
+        default:
+            console.log(`Unknown command: ${command}`);
+            break;
+    }
 };
 
 // Animate

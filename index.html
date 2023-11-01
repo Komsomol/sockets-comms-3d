@@ -16,9 +16,20 @@
       <h2>Controller</h2>
     </div>
 
+    <div class="status">
+      <div class="connections">
+        <h3>Connections</h3>
+        <p>Connected: <span id="connected">0</span></p>
+      </div>
+    </div>
+
+
     <div class="controls">
       <button onmousedown="startRotation('left')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Left</button>
       <button onmousedown="startRotation('right')" onmouseup="stopRotation()" onmouseleave="stopRotation()">Rotate Right</button>
+      <button onclick="sendModelChangeCommand('London Financial District')">London Financial District</button>
+      <button onclick="sendModelChangeCommand('Old London Bridge')">Old London Bridge Tablet</button>
+      <button onclick="sendModelChangeCommand('Mini London')">Mini London Minicar</button>
     </div>
 
   </div>
