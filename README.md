@@ -14,6 +14,7 @@ Simple application using sockets to send commands to a three js page, to rotate 
 
 ## Notes
 - `public` for static files
+- place models into `models` folder
 - `src` for js and any other files like css and models
 
 ## Model
