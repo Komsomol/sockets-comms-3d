@@ -9,7 +9,8 @@ Simple application using sockets to send commands to a three js page, to rotate 
 - Watch the HTML files with `npm run dev`
 
 ## Paths
-- `localhost:3000` for the controller page
+- `5173` is a port randomly chosen by Vite so it might change
+- `localhost:5173` for the controller page
 - `http://localhost:5173/present.html` for the three js page
 
 ## Notes
