@@ -4,6 +4,11 @@ let rotationInterval;
 
 ws.onopen = () => {
   console.log('Connected to WebSocket server on port 3001. ');
+  console.log(ws.readyState);
+  if(ws.readyState === 1){
+    ws.send('Connection established!');
+    document.getElementById('connection-status').text = 'Connected';
+  }
 };
 
 ws.onerror = (error) => {
