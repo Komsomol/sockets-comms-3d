@@ -116,9 +116,9 @@ if(debug) {
     cameraFolder.open();
     
     const lightFolder = gui.addFolder("Light");
-    lightFolder.add(directionalLight.position, "x", -20, 20);
-    lightFolder.add(directionalLight.position, "y", -20, 20);
-    lightFolder.add(directionalLight.position, "z", -20, 20);
+    lightFolder.add(directionalLight.position, "x", -100, 100);
+    lightFolder.add(directionalLight.position, "y", -100, 100);
+    lightFolder.add(directionalLight.position, "z", -100, 100);
     lightFolder.open();
     
 	// Axes helper
