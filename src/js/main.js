@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { GUI } from "dat.gui";
 
-const debug = false;
+const debug = true;
 const PATH = "ws://localhost:3001";
 
 // Scene setup
@@ -42,25 +42,9 @@ let model;
 let loaded = false;
 
 const models = {
-	"Burdett Coutts": {
-		path: "./models/burdett-coutts_fountain.glb",
-		cameraPosition: new THREE.Vector3(0, 76, 190),
-	},
-	"London Financial District": {
-		path: "./models/london_financial_district.glb",
+	"Porsche": {
+		path: "./models/scene.gltf",
 		cameraPosition: new THREE.Vector3(0.5, 24, 33),
-	},
-	"Mini London": {
-		path: "./models/mini_london.glb",
-		cameraPosition: new THREE.Vector3(3, 1.5, 1.5),
-	},
-	"O2 Arena": {
-		path: "./models/o2_arenalondon.glb",
-		cameraPosition: new THREE.Vector3(20, 60, 98),
-	},
-	"Old London Bridge": {
-		path: "./models/old_london_bridge_tablet.glb",
-		cameraPosition: new THREE.Vector3(0, 11, 29),
 	},
 };
 
@@ -68,7 +52,7 @@ let controls = {
 	axes: false,
 	grid: false,
 	dirLightHelper: false,
-    switchModel: debug ? 'Mini London' : 'London Financial District'
+    switchModel: debug ? 'Porsche' : 'Add Models',
 };
 
 function loadModel(name) {
@@ -84,7 +68,9 @@ function loadModel(name) {
 				scene.add(model);
 				camera.position.copy(models[name].cameraPosition);
 				camera.lookAt(0, 0, 0);
-
+				console.log("Model loaded:", name);
+				console.log('model:', model.scale);
+				model.scale.set(10, 10, 10);
 				console.log("===>", camera.position);
 				loaded = true;
 				animate();
@@ -170,20 +156,14 @@ ws.onmessage = (event) => {
 	if (!loaded) return;
     switch (command) {
         case "rotate-left":
-            model.rotation.y -= 0.1;
+            model.rotation.y -= 0.01;
             break;
         case "rotate-right":
-            model.rotation.y += 0.1;
+            model.rotation.y += 0.01;
             break;
-        case "London Financial District":
-            loadModel('London Financial District');
+        case "Porsche":
+            loadModel('Porsche');
             break;
-        case "Old London Bridge":
-            loadModel('Old London Bridge');
-            break;
-		case "Mini London":
-			loadModel('Mini London');
-			break;
         default:
             console.log(`Unknown command: ${command}`);
             break;
@@ -193,7 +173,7 @@ ws.onmessage = (event) => {
 // Animate
 function animate() {
 	if (loaded) {
-		model.rotation.y += 0.001;
+		// model.rotation.y += 0.001;
 		renderer.render(scene, camera);
 		requestAnimationFrame(animate);
 	}
